@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1022
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CASDotNetCore.Console", "CASDotNetCore.Console\CASDotNetCore.Console.csproj", "{40B8F0D5-6CBA-4A0C-8EE5-F9D02A9F5757}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CASDotNetCore", "CASDotNetCore\CASDotNetCore.csproj", "{0D5CEB7A-749F-4E7E-B1EB-9BBC5C67999D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40B8F0D5-6CBA-4A0C-8EE5-F9D02A9F5757}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40B8F0D5-6CBA-4A0C-8EE5-F9D02A9F5757}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40B8F0D5-6CBA-4A0C-8EE5-F9D02A9F5757}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40B8F0D5-6CBA-4A0C-8EE5-F9D02A9F5757}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D5CEB7A-749F-4E7E-B1EB-9BBC5C67999D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D5CEB7A-749F-4E7E-B1EB-9BBC5C67999D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D5CEB7A-749F-4E7E-B1EB-9BBC5C67999D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D5CEB7A-749F-4E7E-B1EB-9BBC5C67999D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B10880BD-0366-4DE1-BF56-6DB19D53F7EA}
+	EndGlobalSection
+EndGlobal

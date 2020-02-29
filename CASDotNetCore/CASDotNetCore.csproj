@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Description>Software free CAS</Description>
+    <Authors>Óscar Hernández Bañó</Authors>
+    <PackageProjectUrl>https://github.com/bugbit/CASDotNetCore</PackageProjectUrl>
+    <Product>CASDotNetCore Edition Nieblita</Product>
+    <Copyright>Copyright © 2018 Óscar Hernández Bañó</Copyright>
+  </PropertyGroup>
+
+</Project>
