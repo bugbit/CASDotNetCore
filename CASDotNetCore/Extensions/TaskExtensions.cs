@@ -27,23 +27,34 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace CASDotNetCore.CAS
+namespace CASDotNetCore.Extensions
 {
-    public class CASProgress : ICASProgressAsync
+    public static class TaskExtensions
     {
-        private Util.IProgressAsync<CASProgressInfo> mProgress;
-
-        public CASProgress(Action<CASProgressInfo> argProgressAction)
+        public static void Wait(this Task argTask)
         {
-            mProgress = new Util.ProgressAsync<CASProgressInfo>(argProgressAction);
+            var pEvent = new AutoResetEvent(false);
+            var pAwaiter = argTask.ConfigureAwait(true).GetAwaiter();
+
+            pAwaiter.OnCompleted(() => pEvent.Set());
+
+            pEvent.WaitOne();
+
+            return;
         }
+        public static T WaitAndResult<T>(this Task<T> argTask)
+        {
+            var pEvent = new AutoResetEvent(false);
+            var pAwaiter = argTask.ConfigureAwait(true).GetAwaiter();
 
-        public Task Print(string argMsg, bool argNewLine) => mProgress.ReportAsync(new CASProgressInfo { Type = ECASProgressType.Print, Text = argMsg, NewLine = argNewLine });
+            pAwaiter.OnCompleted(() => pEvent.Set());
 
-        public Task PrintException(Exception ex) => mProgress.ReportAsync(new CASProgressInfo { Ex = ex });
+            pEvent.WaitOne();
 
-        public Task SetTitle(string argTitle) => mProgress.ReportAsync(new CASProgressInfo { Text = argTitle });
+            return pAwaiter.GetResult();
+        }
     }
 }

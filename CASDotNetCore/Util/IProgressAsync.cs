@@ -29,21 +29,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CASDotNetCore.CAS
+namespace CASDotNetCore.Util
 {
-    public class CASProgress : ICASProgressAsync
+    interface IProgressAsync<T> : IProgress<T>
     {
-        private Util.IProgressAsync<CASProgressInfo> mProgress;
-
-        public CASProgress(Action<CASProgressInfo> argProgressAction)
-        {
-            mProgress = new Util.ProgressAsync<CASProgressInfo>(argProgressAction);
-        }
-
-        public Task Print(string argMsg, bool argNewLine) => mProgress.ReportAsync(new CASProgressInfo { Type = ECASProgressType.Print, Text = argMsg, NewLine = argNewLine });
-
-        public Task PrintException(Exception ex) => mProgress.ReportAsync(new CASProgressInfo { Ex = ex });
-
-        public Task SetTitle(string argTitle) => mProgress.ReportAsync(new CASProgressInfo { Text = argTitle });
+        //
+        // Resumen:
+        //     Reports a progress update.
+        //
+        // Parámetros:
+        //   value:
+        //     The value of the updated progress.
+        Task ReportAsync(T value);
     }
 }

@@ -27,23 +27,40 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace CASDotNetCore.CAS
+namespace CASDotNetCore.Util
 {
-    public class CASProgress : ICASProgressAsync
+    public class ProgressAsync<T> : Progress<Tuple<T, TaskCompletionSource<bool>>>, IProgressAsync<T>
     {
-        private Util.IProgressAsync<CASProgressInfo> mProgress;
-
-        public CASProgress(Action<CASProgressInfo> argProgressAction)
+        public ProgressAsync(Action<T> argAction) : base
+        (
+            p =>
+            {
+                try
+                {
+                    argAction.Invoke(p.Item1);
+                    p.Item2.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    p.Item2.SetException(ex);
+                }
+            }
+        )
         {
-            mProgress = new Util.ProgressAsync<CASProgressInfo>(argProgressAction);
         }
 
-        public Task Print(string argMsg, bool argNewLine) => mProgress.ReportAsync(new CASProgressInfo { Type = ECASProgressType.Print, Text = argMsg, NewLine = argNewLine });
+        public void Report(T value) => ReportAsync(value).RunSynchronously();
 
-        public Task PrintException(Exception ex) => mProgress.ReportAsync(new CASProgressInfo { Ex = ex });
+        public async Task ReportAsync(T value)
+        {
+            var p = new Tuple<T, TaskCompletionSource<bool>>(value, new TaskCompletionSource<bool>());
 
-        public Task SetTitle(string argTitle) => mProgress.ReportAsync(new CASProgressInfo { Text = argTitle });
+            base.OnReport(p);
+
+            await p.Item2.Task;
+        }
     }
 }

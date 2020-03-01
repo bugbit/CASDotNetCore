@@ -27,6 +27,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CASDotNetCore.CAS
 {
@@ -35,5 +36,12 @@ namespace CASDotNetCore.CAS
         void SetTitle(string argTitle);
         void Print(string argMsg, bool argNewLine);
         void PrintException(Exception ex);
+    }
+
+    public interface ICASProgressAsync
+    {
+        Task SetTitle(string argTitle);
+        Task Print(string argMsg, bool argNewLine);
+        Task PrintException(Exception ex);
     }
 }

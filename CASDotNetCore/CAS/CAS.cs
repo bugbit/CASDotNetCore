@@ -32,13 +32,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using CASDotNetCore.Extensions;
+
 namespace CASDotNetCore.CAS
 {
     public class CAS
     {
-        protected CASProgress mProgress;
         private string[] mArgs;
         private bool mExit;
+
+        protected CASProgress mProgress;
+        protected CancellationTokenSource mRunTokenCancel = new CancellationTokenSource();
+        protected CancellationTokenSource mEvalTokenCancel = null;
 
         public CAS(Action<CASProgressInfo> argProgressAction)
         {
@@ -49,7 +54,7 @@ namespace CASDotNetCore.CAS
             mArgs = args;
             try
             {
-                PrintHeader();
+                await PrintHeader();
                 await ParseCommandLine();
                 if (mExit)
                     return 0;
@@ -58,7 +63,7 @@ namespace CASDotNetCore.CAS
             }
             catch (Exception ex)
             {
-                mProgress.PrintException(ex);
+                await mProgress.PrintException(ex);
 
                 return -1;
             }
@@ -71,7 +76,7 @@ namespace CASDotNetCore.CAS
             }
             catch (Exception ex)
             {
-                mProgress.PrintException(ex);
+                await mProgress.PrintException(ex);
 
                 return -1;
             }
@@ -79,17 +84,7 @@ namespace CASDotNetCore.CAS
             return 0;
         }
 
-        public int Run(string[] args)
-        {
-            var pEvent = new AutoResetEvent(false);
-            var pAwaiter = RunAsync(args).ConfigureAwait(true).GetAwaiter();
-
-            pAwaiter.OnCompleted(() => pEvent.Set());
-
-            pEvent.WaitOne();
-
-            return pAwaiter.GetResult();
-        }
+        public int Run(string[] args) => RunAsync(args).WaitAndResult();
 
         //private IProgress<string> mPrint
         private void GetHeader(out string argText, out string argTitle)
@@ -115,12 +110,12 @@ MIT LICENSE
 ;
         }
 
-        private void PrintHeader()
+        private async Task PrintHeader()
         {
             GetHeader(out string pText, out string pTitle);
 
-            mProgress.SetTitle(pTitle);
-            mProgress.Print(pText, true);
+            await mProgress.SetTitle(pTitle);
+            await mProgress.Print(pText, true);
         }
 
         private async Task ParseCommandLine()
@@ -148,9 +143,43 @@ MIT LICENSE
 
         }
 
+#if DEBUG
+
+        #region Test
+
+        private delegate Task TestHandler();
+
         private async Task Test()
         {
-            await Task.Run(() => { });
+            var pType = this.GetType();
+            var pMethods = new List<MethodInfo>();
+
+            do
+            {
+                var pRet = pType.FindMembers(MemberTypes.Method, BindingFlags.Instance | BindingFlags.NonPublic, (m, c) => ((MethodInfo)m).GetCustomAttributes((Type)c, true).Length != 0, typeof(TestAttribute)).OfType<MethodInfo>();
+
+                pMethods.AddRange(pRet);
+                pType = pType.BaseType;
+            } while (pType != null);
+
+            foreach (var pMethod in pMethods)
+            {
+                var pArgs = pMethod.GetParameters();
+
+                switch (pArgs.Length)
+                {
+                    case 0:
+                        if (pMethod.ReturnType == typeof(Task))
+                            await ((TestHandler)pMethod.CreateDelegate(typeof(TestHandler), this)).Invoke();
+                        else
+                            pMethod.Invoke(this, null);
+                        break;
+                }
+            }
         }
+
+        #endregion
+#endif
     }
 }
+

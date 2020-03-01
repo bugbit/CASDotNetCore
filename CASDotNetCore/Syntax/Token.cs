@@ -27,23 +27,17 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace CASDotNetCore.CAS
+namespace CASDotNetCore.Syntax
 {
-    public class CASProgress : ICASProgressAsync
+    public class Token
     {
-        private Util.IProgressAsync<CASProgressInfo> mProgress;
-
-        public CASProgress(Action<CASProgressInfo> argProgressAction)
-        {
-            mProgress = new Util.ProgressAsync<CASProgressInfo>(argProgressAction);
-        }
-
-        public Task Print(string argMsg, bool argNewLine) => mProgress.ReportAsync(new CASProgressInfo { Type = ECASProgressType.Print, Text = argMsg, NewLine = argNewLine });
-
-        public Task PrintException(Exception ex) => mProgress.ReportAsync(new CASProgressInfo { Ex = ex });
-
-        public Task SetTitle(string argTitle) => mProgress.ReportAsync(new CASProgressInfo { Text = argTitle });
+        public ETokenType Type { get; internal set; }
+        public int Line { get; internal set; }
+        public int Position { get; internal set; }
+        public string[] TrivialBefore { get; internal set; }
+        public string[] TokenStr { get; internal set; }
+        public string[] TrivialAfter { get; internal set; }
+        public string Word { get; internal set; }
     }
 }
