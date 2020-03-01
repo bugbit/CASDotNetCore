@@ -24,14 +24,133 @@ SOFTWARE.
 */
 #endregion
 
-
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CASDotNetCore.CAS
 {
-    class CAS
+    public class CAS
     {
+        protected CASProgress mProgress;
+        private string[] mArgs;
+        private bool mExit;
+
+        public CAS(Action<CASProgressInfo> argProgressAction)
+        {
+            mProgress = new CASProgress(argProgressAction);
+        }
+        public async Task<int> RunAsync(string[] args)
+        {
+            mArgs = args;
+            try
+            {
+                PrintHeader();
+                await ParseCommandLine();
+                if (mExit)
+                    return 0;
+
+                BeforeRun();
+            }
+            catch (Exception ex)
+            {
+                mProgress.PrintException(ex);
+
+                return -1;
+            }
+
+            RunInternal();
+
+            try
+            {
+                AfterRun();
+            }
+            catch (Exception ex)
+            {
+                mProgress.PrintException(ex);
+
+                return -1;
+            }
+
+            return 0;
+        }
+
+        public int Run(string[] args)
+        {
+            var pEvent = new AutoResetEvent(false);
+            var pAwaiter = RunAsync(args).ConfigureAwait(true).GetAwaiter();
+
+            pAwaiter.OnCompleted(() => pEvent.Set());
+
+            pEvent.WaitOne();
+
+            return pAwaiter.GetResult();
+        }
+
+        //private IProgress<string> mPrint
+        private void GetHeader(out string argText, out string argTitle)
+        {
+            var pAssembly = Assembly.GetEntryAssembly();
+            var pAttrs = pAssembly.GetCustomAttributes(false);
+            var pName = pAttrs.OfType<AssemblyTitleAttribute>().First().Title;
+            var pVersion = pAssembly.GetName().Version.ToString();
+            var pDescription = pAttrs.OfType<AssemblyDescriptionAttribute>().First().Description;
+            var pLicense = pAttrs.OfType<AssemblyCopyrightAttribute>().First().Copyright;
+
+            argTitle = $"{pName} {pVersion}";
+            argText =
+$@"
+/*
+{pName} Version {pVersion}
+{pDescription}
+https://github.com/bugbit/CASDotNetCore
+
+{pLicense}
+MIT LICENSE
+*/"
+;
+        }
+
+        private void PrintHeader()
+        {
+            GetHeader(out string pText, out string pTitle);
+
+            mProgress.SetTitle(pTitle);
+            mProgress.Print(pText, true);
+        }
+
+        private async Task ParseCommandLine()
+        {
+#if DEBUG
+            if (mArgs != null && mArgs.Length > 0 && mArgs[0].Equals("--t", StringComparison.InvariantCultureIgnoreCase))
+            {
+                await Test();
+            }
+#endif
+        }
+
+        private void BeforeRun()
+        {
+
+        }
+
+        private void RunInternal()
+        {
+
+        }
+
+        private void AfterRun()
+        {
+
+        }
+
+        private async Task Test()
+        {
+            await Task.Run(() => { });
+        }
     }
 }

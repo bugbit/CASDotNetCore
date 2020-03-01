@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CASDotNetCore.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "--t"
+    }
+  }
+}

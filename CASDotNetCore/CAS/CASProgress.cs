@@ -25,48 +25,25 @@ SOFTWARE.
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
-using static System.Console;
-
-using CAS = CASDotNetCore.CAS;
-
-namespace CASDotNetCore.Console
+namespace CASDotNetCore.CAS
 {
-    class Program : CAS.ICASProgress
+    public class CASProgress : ICASProgress
     {
-        static int Main(string[] args)
-        {
-            var pApp = new Program();
-            var pProgress = new CAS.CASProgressClient(pApp);
-            var pCAS = new CAS.CAS(pProgress.ProgressInfo);
+        private IProgress<CASProgressInfo> mProgress;
 
-            return pCAS.Run(args);
+        public CASProgress(Action<CASProgressInfo> argProgressAction)
+        {
+            mProgress = new Progress<CASProgressInfo>(argProgressAction);
         }
 
-        public void SetTitle(string argTitle) => Title = argTitle;
+        public void Print(string argMsg, bool argNewLine) => mProgress.Report(new CASProgressInfo { Type = ECASProgressType.Print, Text = argMsg, NewLine = argNewLine });
 
-        public void Print(string argMsg, bool argNewLine)
-        {
-            if (argNewLine)
-                WriteLine(argMsg);
-            else
-                Write(argMsg);
-        }
+        public void PrintException(Exception ex) => mProgress.Report(new CASProgressInfo { Ex = ex });
 
-        public void PrintException(Exception ex)
-        {
-            var pForeColor = ForegroundColor;
-
-            try
-            {
-                ForegroundColor = ConsoleColor.Red;
-                WriteLine(ex.Message);
-            }
-            finally
-            {
-                ForegroundColor = pForeColor;
-            }
-        }
+        public void SetTitle(string argTitle) => mProgress.Report(new CASProgressInfo { Text = argTitle });
     }
 }
