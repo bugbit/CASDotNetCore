@@ -36,6 +36,22 @@ using CASDotNetCore.Extensions;
 
 namespace CASDotNetCore.CAS
 {
+    /*
+     urls:
+     . https://ace.c9.io/#nav=about
+     . https://practicasdeprogramacion.wordpress.com/2011/09/08/raices-de-polinomios-regla-de-ruffini/
+https://es.wikipedia.org/wiki/Algoritmo_de_Horner
+https://es.wikipedia.org/wiki/Regla_de_Ruffini
+
+https://www.solumaths.com/es/sitio/pagina-principal
+http://www.librosmaravillosos.com/eldiablodelosnumeros/
+https://www.smartick.es
+
+prime factorization
+
+Simplificar
+http://www.montereyinstitute.org/courses/Algebra1/COURSE_TEXT_RESOURCE/U11_L1_T1_text_final_es.html
+         */
     public class CAS
     {
         private string[] mArgs;
