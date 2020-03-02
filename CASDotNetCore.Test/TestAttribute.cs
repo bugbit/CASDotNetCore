@@ -28,16 +28,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CASDotNetCore.Syntax
+namespace CASDotNetCore.Test
 {
-    public class Token
+    [AttributeUsage(AttributeTargets.Method)]
+    class TestAttribute : Attribute
     {
-        public ETokenType Type { get; internal set; }
-        public int Line { get; internal set; }
-        public int Position { get; internal set; }
-        public StringBuilder TrivialBefore { get; } = new StringBuilder();
-        public StringBuilder TokenStr { get; } = new StringBuilder();
-        public StringBuilder TrivialAfter { get; } = new StringBuilder();
-        public string Word { get; internal set; }
     }
 }
