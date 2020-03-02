@@ -26,10 +26,12 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CASDotNetCore.Syntax
 {
+    [DebuggerDisplay("Type : {Type} Word : {Word} Line : {Line} Position: {Position}")]
     public class Token
     {
         public ETokenType Type { get; internal set; }
@@ -39,5 +41,16 @@ namespace CASDotNetCore.Syntax
         public StringBuilder TokenStr { get; } = new StringBuilder();
         public StringBuilder TrivialAfter { get; } = new StringBuilder();
         public string Word { get; internal set; }
+
+        public override string ToString()
+        {
+            var pBuilder = new StringBuilder();
+
+            pBuilder.Append(TrivialBefore);
+            pBuilder.Append(TokenStr);
+            pBuilder.Append(TrivialAfter);
+
+            return pBuilder.ToString();
+        }
     }
 }

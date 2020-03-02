@@ -52,6 +52,8 @@ namespace CASDotNetCore.Syntax
 
         public bool EOF { get; private set; }
 
+        private LinkedList<Token> Tokens { get; } = new LinkedList<Token>();
+
         private async Task<bool> NextChar(bool argCanNextLine)
         {
             mTokenCancel.ThrowIfCancellationRequested();
@@ -102,6 +104,72 @@ namespace CASDotNetCore.Syntax
             }
 
             return await NextChar(true);
+        }
+
+        private async Task NextToken()
+        {
+            if (EOF)
+                return;
+
+            var pToken = new Token();
+
+            await NextChar(true);
+
+            while (char.IsWhiteSpace(mCurrentChar))
+            {
+                mTokenCancel.ThrowIfCancellationRequested();
+                pToken.TrivialBefore.Append(mCurrentChar);
+                await NextChar(true);
+            }
+
+            pToken.Line = mLine;
+            pToken.Position = mPosition;
+
+            if (char.IsLetter(mCurrentChar))
+            {
+                do
+                {
+                    mTokenCancel.ThrowIfCancellationRequested();
+                    pToken.TokenStr.Append(mCurrentChar);
+                    await NextChar(false);
+                } while ((char.IsLetter(mCurrentChar)));
+                pToken.Type = ETokenType.Word;
+                pToken.Word = pToken.TokenStr.ToString();
+            }
+            else if (char.IsDigit(mCurrentChar) || mCurrentChar == '.')
+            {
+                var pHaveDecimalPoint = false;
+
+                do
+                {
+                    mTokenCancel.ThrowIfCancellationRequested();
+                    pToken.TokenStr.Append(mCurrentChar);
+                    if (mCurrentChar == '.')
+                    {
+                        if (pHaveDecimalPoint)
+                            break;
+
+                        pHaveDecimalPoint = true;
+                    }
+                    await NextChar(false);
+                } while (char.IsDigit(mCurrentChar));
+                pToken.Type = ETokenType.Number;
+                pToken.Word = pToken.TokenStr.ToString();
+            }
+            else
+            {
+                switch (mCurrentChar)
+                {
+                    case '(':
+                        pToken.Type = ETokenType.OpenParens;
+                        await NextChar(false);
+                        break;
+                    case ')':
+                        pToken.Type = ETokenType.CloseParens;
+                        await NextChar(false);
+                        break;
+                }
+            }
         }
     }
 }

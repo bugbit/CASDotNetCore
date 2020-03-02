@@ -32,5 +32,6 @@ namespace CASDotNetCore.Syntax
 {
     public enum ETokenType
     {
+        Word, Number, OpenParens, CloseParens
     }
 }
