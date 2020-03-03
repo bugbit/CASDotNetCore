@@ -25,8 +25,13 @@ SOFTWARE.
 #endregion
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+
+using ST = CASDotNetCore.Syntax;
 
 namespace CASDotNetCore.Test
 {
@@ -34,16 +39,39 @@ namespace CASDotNetCore.Test
     {
         static void Main(string[] args)
         {
+            RunTest().RunSynchronously();
+        }
+
+        static async Task RunTest()
+        {
             var pMethods = typeof(Program).Assembly.GetTypes().Select(t => t.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.NonPublic, (m, c) => ((MethodInfo)m).GetCustomAttributes((Type)c, true).Length != 0, typeof(TestAttribute)).OfType<MethodInfo>()).SelectMany(m => m);
 
             foreach (var pMethod in pMethods)
-                pMethod.Invoke(null, null);
+            {
+                if (pMethod.ReturnType == typeof(Task))
+                    await ((TestHandler)pMethod.CreateDelegate(typeof(TestHandler))).Invoke();
+                else
+                    pMethod.Invoke(null, null);
+                break;
+            }
         }
 
         [Test]
-        static void Test1()
+        static async Task TokernizerTest()
         {
+            var pTexts = new[]
+            {
+                "20"
+            };
 
+            foreach (var pText in pTexts)
+            {
+                var pTokens = await ST.Tokenizer.ReadTokens(new StringReader(pText), CancellationToken.None);
+
+                Console.WriteLine($"{pText} :");
+                foreach (var pToken in pTokens)
+                    Console.WriteLine($"{pToken.Type} : {pToken.Word}");
+            }
         }
     }
 }

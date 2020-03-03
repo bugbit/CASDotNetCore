@@ -33,8 +33,16 @@ using System.Threading.Tasks;
 
 namespace CASDotNetCore.Syntax
 {
-    class Tokenizer
+    public class Tokenizer
     {
+        private static readonly Dictionary<char, ETokenType> mDictTypeSymbol = new Dictionary<char, ETokenType>
+        {
+            ['('] = ETokenType.OpenParens,
+            [')'] = ETokenType.CloseParens,
+            [';'] = ETokenType.Terminate,
+            ['$'] = ETokenType.TerminateHide
+        };
+
         private TextReader mReader;
         private CancellationToken mTokenCancel;
         private List<string> mLinesReads = new List<string>();
@@ -52,7 +60,25 @@ namespace CASDotNetCore.Syntax
 
         public bool EOF { get; private set; }
 
-        private LinkedList<Token> Tokens { get; } = new LinkedList<Token>();
+        public LinkedList<Token> Tokens { get; } = new LinkedList<Token>();
+
+        public async Task ReadTokens()
+        {
+            while (!EOF)
+            {
+                mTokenCancel.ThrowIfCancellationRequested();
+                await NextToken();
+            }
+        }
+
+        public async static Task<LinkedList<Token>> ReadTokens(TextReader argReader, CancellationToken argTokenCancel)
+        {
+            var pTokenizer = new Tokenizer(argReader, argTokenCancel);
+
+            await pTokenizer.ReadTokens();
+
+            return pTokenizer.Tokens;
+        }
 
         private async Task<bool> NextChar(bool argCanNextLine)
         {
@@ -158,18 +184,14 @@ namespace CASDotNetCore.Syntax
             }
             else
             {
-                switch (mCurrentChar)
+                if (mDictTypeSymbol.TryGetValue(mCurrentChar, out ETokenType pType))
                 {
-                    case '(':
-                        pToken.Type = ETokenType.OpenParens;
-                        await NextChar(false);
-                        break;
-                    case ')':
-                        pToken.Type = ETokenType.CloseParens;
-                        await NextChar(false);
-                        break;
+                    pToken.Type = pType;
+                    await NextChar(false);
                 }
             }
+
+            Tokens.AddLast(pToken);
         }
     }
 }
