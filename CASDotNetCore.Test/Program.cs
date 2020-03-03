@@ -39,7 +39,9 @@ namespace CASDotNetCore.Test
     {
         static void Main(string[] args)
         {
-            RunTest().RunSynchronously();
+            RunTest().Wait();
+            Console.WriteLine("Tests done. press ENTER to exit");
+            Console.ReadLine();
         }
 
         static async Task RunTest()
@@ -61,7 +63,10 @@ namespace CASDotNetCore.Test
         {
             var pTexts = new[]
             {
-                "20"
+                //"20",
+                //"x",
+                "20;",
+                //"50$100;"
             };
 
             foreach (var pText in pTexts)

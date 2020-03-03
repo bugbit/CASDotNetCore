@@ -59,11 +59,15 @@ namespace CASDotNetCore.Syntax
         }
 
         public bool EOF { get; private set; }
+        public bool EOL { get; private set; }
 
         public LinkedList<Token> Tokens { get; } = new LinkedList<Token>();
 
         public async Task ReadTokens()
         {
+            if (!await NextChar(true))
+                return;
+
             while (!EOF)
             {
                 mTokenCancel.ThrowIfCancellationRequested();
@@ -90,21 +94,24 @@ namespace CASDotNetCore.Syntax
 
                 return false;
             }
-            if (mLineStr == null || mPosition >= mLineStr.Length)
+            if (mLineStr == null)
             {
-                if (mLineStr != null && !argCanNextLine)
+                if (!await ReadNextLine())
                     return false;
+            }
+            else if (mPosition >= mLineStr.Length)
+            {
+                if (!argCanNextLine)
+                {
+                    EOL = true;
+
+                    return false;
+                }
 
                 if (mLine >= mLinesReads.Count)
                 {
-                    if ((mLineStr = await mReader.ReadLineAsync()) == null)
-                    {
-                        EOF = true;
-                        mCurrentChar = '\x0';
-
+                    if (!await ReadNextLine())
                         return false;
-                    }
-                    mLine++;
                 }
                 else
                     mLineStr = mLinesReads[mLine++];
@@ -113,6 +120,23 @@ namespace CASDotNetCore.Syntax
             }
 
             mCurrentChar = mLineStr[mPosition++];
+
+            return true;
+        }
+
+        private async Task<bool> ReadNextLine()
+        {
+            if ((mLineStr = await mReader.ReadLineAsync()) == null)
+            {
+                EOF = true;
+                mCurrentChar = '\x0';
+
+                return false;
+            }
+            EOL = false;
+            mLine++;
+            mLinesReads.Add(mLineStr);
+            mPosition = 0;
 
             return true;
         }
@@ -139,13 +163,16 @@ namespace CASDotNetCore.Syntax
 
             var pToken = new Token();
 
-            await NextChar(true);
+            if (EOL)
+                if (!await NextChar(true))
+                    return;
 
             while (char.IsWhiteSpace(mCurrentChar))
             {
                 mTokenCancel.ThrowIfCancellationRequested();
                 pToken.TrivialBefore.Append(mCurrentChar);
-                await NextChar(true);
+                if (!await NextChar(true))
+                    break;
             }
 
             pToken.Line = mLine;
@@ -157,7 +184,8 @@ namespace CASDotNetCore.Syntax
                 {
                     mTokenCancel.ThrowIfCancellationRequested();
                     pToken.TokenStr.Append(mCurrentChar);
-                    await NextChar(false);
+                    if (!await NextChar(false))
+                        break;
                 } while ((char.IsLetter(mCurrentChar)));
                 pToken.Type = ETokenType.Word;
                 pToken.Word = pToken.TokenStr.ToString();
@@ -177,7 +205,8 @@ namespace CASDotNetCore.Syntax
 
                         pHaveDecimalPoint = true;
                     }
-                    await NextChar(false);
+                    if (!await NextChar(false))
+                        break;
                 } while (char.IsDigit(mCurrentChar));
                 pToken.Type = ETokenType.Number;
                 pToken.Word = pToken.TokenStr.ToString();
