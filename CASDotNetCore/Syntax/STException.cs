@@ -26,12 +26,42 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text;
 
-namespace CASDotNetCore.Exprs
+namespace CASDotNetCore.Syntax
 {
-    public enum ETypeExpr
+    public class STException : Exception
     {
-        Null, Word, Function
+        public int Line { get; set; }
+        public int Position { get; set; }
+
+        public STException(int? argLinea, int? argPosition = null)
+        {
+            if (argLinea.HasValue)
+                Line = argLinea.Value;
+            if (argPosition.HasValue)
+                Position = argPosition.Value;
+        }
+
+        public STException(string message, int? argLine, int? argPosition = null) : base(message)
+        {
+            if (argLine.HasValue)
+                Line = argLine.Value;
+            if (argPosition.HasValue)
+                Position = argPosition.Value;
+        }
+
+        public STException(string message, Exception innerException, int? argLine, int? argPosition = null) : base(message, innerException)
+        {
+            if (argLine.HasValue)
+                Line = argLine.Value;
+            if (argPosition.HasValue)
+                Position = argPosition.Value;
+        }
+
+        protected STException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
     }
 }

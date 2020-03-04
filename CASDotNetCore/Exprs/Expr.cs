@@ -46,5 +46,7 @@ namespace CASDotNetCore.Exprs
         virtual public Expr Clone() => throw new NotImplementedException();
 
         object ICloneable.Clone() => Clone();
+
+        public static Expr Null => NullExpr.Value;
     }
 }

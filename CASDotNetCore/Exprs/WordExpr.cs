@@ -26,11 +26,27 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CASDotNetCore.Exprs
 {
-    public class WordExpr
+    [DebuggerDisplay("TypeExpr : {TypeExpr} Word : {Word}")]
+    public sealed class WordExpr : Expr
     {
+        public string Word { get; }
+
+        public WordExpr(ETypeExpr argTypeExpr, string argWord) : base(argTypeExpr)
+        {
+            Word = argWord;
+        }
+
+        public WordExpr(WordExpr e) : this(e.TypeExpr, e.Word)
+        {
+        }
+
+        public override Expr Clone() => new WordExpr(this);
+
+        public override string ToString() => Word;
     }
 }

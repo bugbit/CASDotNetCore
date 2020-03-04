@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace CASDotNetCore.Syntax
 {
-    public class Tokenizer
+    public sealed class Tokenizer
     {
         private static readonly Dictionary<char, ETokenType> mDictTypeSymbol = new Dictionary<char, ETokenType>
         {
@@ -218,6 +218,8 @@ namespace CASDotNetCore.Syntax
                     pToken.Type = pType;
                     await NextChar(false);
                 }
+                else
+                    throw new STException(string.Format(Properties.Resources.NoRecognizeStError, mCurrentChar), mLine, mPosition);
             }
 
             Tokens.AddLast(pToken);

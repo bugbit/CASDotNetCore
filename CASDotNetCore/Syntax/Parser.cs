@@ -26,12 +26,26 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace CASDotNetCore.Exprs
+namespace CASDotNetCore.Syntax
 {
-    public enum ETypeExpr
+    public sealed class Parser
     {
-        Null, Word, Function
+        private Tokenizer mTokenizer;
+        private TokensReader mReader;
+
+        public Parser(TextReader argReader, CancellationToken argTokenCancel)
+        {
+            mTokenizer = new Tokenizer(argReader, argTokenCancel);
+        }
+
+        public async Task Parse()
+        {
+            await mTokenizer.ReadTokens();
+        }
     }
 }

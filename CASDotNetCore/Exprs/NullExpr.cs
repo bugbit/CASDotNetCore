@@ -26,12 +26,18 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CASDotNetCore.Exprs
 {
-    public enum ETypeExpr
+    [DebuggerDisplay("TypeExpr : {TypeExpr}")]
+    sealed public class NullExpr : Expr
     {
-        Null, Word, Function
+        private static readonly Lazy<Expr> mValue = new Lazy<Expr>(() => new NullExpr());
+
+        private NullExpr() : base(ETypeExpr.Null) { }
+
+        public static Expr Value => mValue.Value;
     }
 }
