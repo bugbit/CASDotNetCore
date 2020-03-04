@@ -65,8 +65,10 @@ namespace CASDotNetCore.Test
             {
                 //"20",
                 //"x",
-                "20;",
-                //"50$100;"
+                //"20;",
+                //"50$100;",
+                "%pi;",
+                "quit();"
             };
 
             foreach (var pText in pTexts)

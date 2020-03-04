@@ -178,7 +178,7 @@ namespace CASDotNetCore.Syntax
             pToken.Line = mLine;
             pToken.Position = mPosition;
 
-            if (char.IsLetter(mCurrentChar))
+            if (char.IsLetter(mCurrentChar) || mCurrentChar == '%')
             {
                 do
                 {
@@ -186,7 +186,7 @@ namespace CASDotNetCore.Syntax
                     pToken.TokenStr.Append(mCurrentChar);
                     if (!await NextChar(false))
                         break;
-                } while ((char.IsLetter(mCurrentChar)));
+                } while (char.IsLetterOrDigit(mCurrentChar) || mCurrentChar == '%');
                 pToken.Type = ETokenType.Word;
                 pToken.Word = pToken.TokenStr.ToString();
             }
